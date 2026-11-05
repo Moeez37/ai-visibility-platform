@@ -1,0 +1,105 @@
+<div class="page">
+  <div class="page-header">
+    <h1>Dashboard</h1>
+    <a mat-flat-button routerLink="/profiles/new">
+      <mat-icon>add</mat-icon>
+      Add New Business Profile
+    </a>
+  </div>
+
+  @if (loading()) {
+    <app-skeleton [lines]="4" [lineHeight]="72" />
+  } @else if (error(); as message) {
+    <app-state-message
+      icon="cloud_off"
+      title="Couldn't load the dashboard"
+      [message]="message"
+      tone="error"
+    >
+      <button mat-stroked-button type="button" (click)="load()">Try again</button>
+    </app-state-message>
+  } @else if (!hasData()) {
+    <app-state-message
+      icon="travel_explore"
+      title="No business profiles yet"
+      message="Add a business to find out which AI assistant questions it shows up for."
+    />
+  } @else if (summary(); as data) {
+    <section class="stats" aria-label="Summary">
+      <mat-card appearance="outlined">
+        <mat-card-content>
+          <div class="stat-value">{{ data.total_profiles | number }}</div>
+          <div class="muted">Total profiles</div>
+        </mat-card-content>
+      </mat-card>
+      <mat-card appearance="outlined">
+        <mat-card-content>
+          <div class="stat-value">{{ data.total_queries | number }}</div>
+          <div class="muted">Queries discovered</div>
+        </mat-card-content>
+      </mat-card>
+      <mat-card appearance="outlined">
+        <mat-card-content>
+          <div class="stat-value">
+            {{
+              data.avg_opportunity_score === null
+                ? '—'
+                : (data.avg_opportunity_score | number: '1.2-2')
+            }}
+          </div>
+          <div class="muted">Avg opportunity score</div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+
+    <div class="columns">
+      <section>
+        <h2>Recent pipeline runs</h2>
+        <mat-card appearance="outlined">
+          @if (data.recent_runs.length === 0) {
+            <app-state-message
+              icon="play_circle"
+              title="No runs yet"
+              message="Open a profile and run the pipeline to see results here."
+            />
+          } @else {
+            <mat-nav-list>
+              @for (run of data.recent_runs; track run.run_uuid) {
+                <a mat-list-item [routerLink]="['/profiles', run.profile_uuid]">
+                  <span matListItemTitle>{{ run.profile_name }}</span>
+                  <span matListItemLine class="muted">
+                    {{ run.started_at | date: 'medium' }} · {{ run.queries_scored }} of
+                    {{ run.queries_discovered }} scored
+                  </span>
+                  <span matListItemMeta>
+                    <mat-chip-set [attr.aria-label]="'Run status'">
+                      <mat-chip [class]="statusClass(run.status)" [disableRipple]="true">{{
+                        run.status
+                      }}</mat-chip>
+                    </mat-chip-set>
+                  </span>
+                </a>
+              }
+            </mat-nav-list>
+          }
+        </mat-card>
+      </section>
+
+      <section>
+        <h2>Business profiles</h2>
+        <mat-card appearance="outlined">
+          <mat-nav-list>
+            @for (profile of profiles(); track profile.profile_uuid) {
+              <a mat-list-item [routerLink]="['/profiles', profile.profile_uuid]">
+                <span matListItemTitle>{{ profile.name }}</span>
+                <span matListItemLine class="muted"
+                  >{{ profile.domain }} · {{ profile.industry }}</span
+                >
+              </a>
+            }
+          </mat-nav-list>
+        </mat-card>
+      </section>
+    </div>
+  }
+</div>

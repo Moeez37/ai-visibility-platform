@@ -1,0 +1,86 @@
+<div class="page narrow">
+  <div class="page-header">
+    <h1>New business profile</h1>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <mat-form-field appearance="outline">
+      <mat-label>Business name</mat-label>
+      <input matInput formControlName="name" autocomplete="organization" />
+      @if (form.controls.name.hasError('required')) {
+        <mat-error>Enter the business name.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Domain</mat-label>
+      <input
+        matInput
+        formControlName="domain"
+        placeholder="example.com"
+        autocapitalize="off"
+        spellcheck="false"
+      />
+      <mat-hint>Just the domain, without http:// or a path</mat-hint>
+      @if (form.controls.domain.hasError('required')) {
+        <mat-error>Enter the domain.</mat-error>
+      } @else if (form.controls.domain.hasError('domain')) {
+        <mat-error>Use a bare domain such as example.com, without http://.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Industry</mat-label>
+      <input matInput formControlName="industry" placeholder="SEO Software" />
+      @if (form.controls.industry.hasError('required')) {
+        <mat-error>Enter the industry.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="3"></textarea>
+      @if (form.controls.description.hasError('required')) {
+        <mat-error>Describe what the business does.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Competitors</mat-label>
+      <mat-chip-grid #competitorGrid aria-label="Competitor domains" formControlName="competitors">
+        @for (competitor of form.controls.competitors.value; track competitor) {
+          <mat-chip-row (removed)="removeCompetitor(competitor)">
+            {{ competitor }}
+            <button matChipRemove type="button" [attr.aria-label]="'Remove ' + competitor">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+        }
+        <input
+          placeholder="Add a domain, then press Enter"
+          autocapitalize="off"
+          spellcheck="false"
+          [matChipInputFor]="competitorGrid"
+          [matChipInputSeparatorKeyCodes]="separatorKeys"
+          [matChipInputAddOnBlur]="true"
+          (matChipInputTokenEnd)="addCompetitor($event)"
+        />
+      </mat-chip-grid>
+      <mat-hint>Optional, such as clearscope.io</mat-hint>
+    </mat-form-field>
+    @if (competitorError(); as message) {
+      <p class="inline-error" role="alert">{{ message }}</p>
+    }
+
+    <div class="actions">
+      <a mat-button routerLink="/">Cancel</a>
+      <button mat-flat-button type="submit" [disabled]="submitting()">
+        @if (submitting()) {
+          <mat-spinner diameter="20" aria-label="Saving" />
+        } @else {
+          Create profile
+        }
+      </button>
+    </div>
+  </form>
+</div>
