@@ -148,5 +148,3 @@ Added because the dashboard needs them:
 - `frontend/.npmrc` sets `legacy-peer-deps` because npm 10 crashes resolving `ng2-charts`' open-ended Angular peer range. `package-lock.json` pins the versions.
 
 ## AI tools used
-
-Built with Claude Code (Anthropic), used for writing the code, tests and this README.
