@@ -1,0 +1,43 @@
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 24px;
+  margin-bottom: 16px;
+}
+
+.slider {
+  display: flex;
+  flex-direction: column;
+}
+
+mat-slider {
+  width: 200px;
+  margin-left: 8px;
+}
+
+mat-form-field {
+  width: 180px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 700px;
+}
+
+th,
+td {
+  padding-inline: 8px;
+}
+
+.query-text {
+  min-width: 180px;
+}

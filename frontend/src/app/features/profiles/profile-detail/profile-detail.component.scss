@@ -1,0 +1,59 @@
+h1 {
+  overflow-wrap: anywhere;
+}
+
+.run-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info,
+.summary {
+  margin-bottom: 16px;
+}
+
+.info p {
+  margin-top: 0;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+
+dd {
+  margin: 4px 0 0;
+  font: var(--mat-sys-title-large);
+}
+
+dd.model {
+  font: var(--mat-sys-body-medium);
+  overflow-wrap: anywhere;
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--mat-sys-surface-container-high);
+}
+
+.notice.failed {
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}
+
+.notice mat-icon {
+  flex: none;
+}
+
+.tab-panel {
+  display: block;
+  padding-top: 16px;
+}

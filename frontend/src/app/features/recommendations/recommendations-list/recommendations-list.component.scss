@@ -1,0 +1,27 @@
+.filter {
+  margin-bottom: 16px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 720px) {
+  .cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+mat-card-title {
+  font: var(--mat-sys-title-medium);
+}
+
+.badges {
+  margin-top: 8px;
+}
+
+.target {
+  font: var(--mat-sys-body-small);
+}

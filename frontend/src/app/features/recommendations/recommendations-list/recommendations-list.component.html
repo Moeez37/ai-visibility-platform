@@ -1,0 +1,64 @@
+@if (loading()) {
+  <app-skeleton [lines]="3" [lineHeight]="140" />
+} @else if (error(); as message) {
+  <app-state-message
+    icon="error_outline"
+    title="Couldn't load recommendations"
+    [message]="message"
+    tone="error"
+  >
+    <button mat-stroked-button type="button" (click)="load()">Try again</button>
+  </app-state-message>
+} @else if (recommendations().length === 0) {
+  <app-state-message
+    icon="lightbulb"
+    title="No recommendations yet"
+    message="Run the pipeline. Recommendations appear for high-opportunity queries where this business isn't mentioned."
+  />
+} @else {
+  <mat-button-toggle-group
+    [formControl]="priorityFilter"
+    aria-label="Filter by priority"
+    class="filter"
+  >
+    <mat-button-toggle value="all">All</mat-button-toggle>
+    <mat-button-toggle value="high">High</mat-button-toggle>
+    <mat-button-toggle value="medium">Medium</mat-button-toggle>
+    <mat-button-toggle value="low">Low</mat-button-toggle>
+  </mat-button-toggle-group>
+
+  @if (visible().length === 0) {
+    <app-state-message
+      icon="filter_alt_off"
+      title="None at this priority"
+      message="Choose a different priority to see more recommendations."
+    />
+  }
+
+  <div class="cards">
+    @for (item of visible(); track item.recommendation_uuid) {
+      <mat-card appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>{{ item.title }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-chip-set aria-label="Type and priority" class="badges">
+            <mat-chip class="chip-blue" [disableRipple]="true">{{
+              typeLabels[item.content_type]
+            }}</mat-chip>
+            <mat-chip [class]="priorityClasses[item.priority]" [disableRipple]="true"
+              >{{ item.priority }} priority</mat-chip
+            >
+          </mat-chip-set>
+          <p>{{ item.rationale }}</p>
+          <p class="muted target">Targets: {{ item.target_query_text }}</p>
+          <mat-chip-set aria-label="Target keywords">
+            @for (keyword of item.target_keywords; track $index) {
+              <mat-chip [disableRipple]="true">{{ keyword }}</mat-chip>
+            }
+          </mat-chip-set>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+}

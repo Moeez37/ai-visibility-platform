@@ -1,0 +1,116 @@
+<div class="page">
+  @if (loading()) {
+    <app-skeleton [lines]="3" [lineHeight]="64" />
+  } @else if (error(); as message) {
+    <app-state-message
+      icon="error_outline"
+      title="Couldn't load this profile"
+      [message]="message"
+      tone="error"
+    >
+      <button mat-stroked-button type="button" (click)="load()">Try again</button>
+    </app-state-message>
+  } @else if (profile(); as business) {
+    <div class="page-header">
+      <div>
+        <h1>{{ business.name }}</h1>
+        <div class="muted">{{ business.domain }} · {{ business.industry }}</div>
+      </div>
+      <button mat-flat-button type="button" [disabled]="running()" (click)="startRun()">
+        @if (running()) {
+          <span class="run-label">
+            <mat-spinner diameter="20" aria-label="Pipeline running" />
+            Running…
+          </span>
+        } @else {
+          <span class="run-label">
+            <mat-icon aria-hidden="true">play_arrow</mat-icon>
+            Run Pipeline
+          </span>
+        }
+      </button>
+    </div>
+
+    <mat-card appearance="outlined" class="info">
+      <mat-card-content>
+        <p>{{ business.description }}</p>
+        @if (business.competitors.length > 0) {
+          <h2>Competitors</h2>
+          <mat-chip-set aria-label="Competitors">
+            @for (competitor of business.competitors; track competitor) {
+              <mat-chip>{{ competitor }}</mat-chip>
+            }
+          </mat-chip-set>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    @if (run(); as latest) {
+      <mat-card appearance="outlined" class="summary">
+        <mat-card-content>
+          <h2>
+            @switch (latest.status) {
+              @case ('running') {
+                Pipeline running
+              }
+              @case ('completed') {
+                Latest run complete
+              }
+              @case ('failed') {
+                Latest run failed
+              }
+            }
+          </h2>
+          <dl>
+            <div>
+              <dt class="muted">Queries discovered</dt>
+              <dd>{{ latest.queries_discovered | number }}</dd>
+            </div>
+            <div>
+              <dt class="muted">Queries scored</dt>
+              <dd>{{ latest.queries_scored | number }}</dd>
+            </div>
+            <div>
+              <dt class="muted">Tokens used</dt>
+              <dd>{{ latest.tokens_used | number }}</dd>
+            </div>
+            <div>
+              <dt class="muted">Model</dt>
+              <dd class="model">{{ latest.llm_model }}</dd>
+            </div>
+          </dl>
+          @if (latest.error_message) {
+            <p class="notice" [class.failed]="latest.status === 'failed'" role="status">
+              <mat-icon aria-hidden="true">warning_amber</mat-icon>
+              {{ latest.error_message }}
+            </p>
+          }
+          @if (isOffline()) {
+            <p class="notice" role="status">
+              <mat-icon aria-hidden="true">info</mat-icon>
+              Demo results from rule-based templates, not an AI model. Add an API key to
+              backend/.env for real analysis.
+            </p>
+          }
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <nav mat-tab-nav-bar [tabPanel]="tabPanel" aria-label="Profile results">
+      @for (tab of tabs; track tab.path) {
+        <a
+          mat-tab-link
+          [routerLink]="tab.path"
+          routerLinkActive
+          #active="routerLinkActive"
+          [active]="active.isActive"
+        >
+          {{ tab.label }}
+        </a>
+      }
+    </nav>
+    <mat-tab-nav-panel #tabPanel class="tab-panel">
+      <router-outlet />
+    </mat-tab-nav-panel>
+  }
+</div>

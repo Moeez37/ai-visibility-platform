@@ -1,0 +1,141 @@
+<form class="filters" [formGroup]="filters">
+  <div class="slider">
+    <label for="min-score" class="muted"
+      >Min score: {{ filters.controls.minScore.value | number: '1.2-2' }}</label
+    >
+    <mat-slider min="0" max="1" step="0.05" discrete>
+      <input id="min-score" matSliderThumb formControlName="minScore" />
+    </mat-slider>
+  </div>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Visibility</mat-label>
+    <mat-select formControlName="status">
+      <mat-option [value]="null">All</mat-option>
+      <mat-option value="visible">Visible</mat-option>
+      <mat-option value="not_visible">Not visible</mat-option>
+      <mat-option value="unknown">Unknown</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <span class="spacer"></span>
+  <button
+    mat-stroked-button
+    type="button"
+    [disabled]="exporting() || total() === 0"
+    (click)="exportCsv()"
+  >
+    <mat-icon>download</mat-icon>
+    Export CSV
+  </button>
+</form>
+
+@if (loading()) {
+  <app-skeleton [lines]="6" />
+} @else if (error(); as message) {
+  <app-state-message
+    icon="error_outline"
+    title="Couldn't load queries"
+    [message]="message"
+    tone="error"
+  >
+    <button mat-stroked-button type="button" (click)="reload()">Try again</button>
+  </app-state-message>
+} @else if (isEmpty()) {
+  @if (filtersActive()) {
+    <app-state-message
+      icon="filter_alt_off"
+      title="No queries match these filters"
+      message="Lower the minimum score or change the visibility filter."
+    />
+  } @else {
+    <app-state-message
+      icon="manage_search"
+      title="No queries yet"
+      message="Run the pipeline to discover what people ask AI assistants in this market."
+    />
+  }
+} @else {
+  <div class="table-wrapper">
+    <table mat-table [dataSource]="queries()">
+      <ng-container matColumnDef="query">
+        <th mat-header-cell *matHeaderCellDef>Query Text</th>
+        <td mat-cell *matCellDef="let query" class="query-text">{{ query.query_text }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="volume">
+        <th mat-header-cell *matHeaderCellDef>Search Volume</th>
+        <td mat-cell *matCellDef="let query">
+          {{
+            query.estimated_search_volume === null ? '—' : (query.estimated_search_volume | number)
+          }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="difficulty">
+        <th mat-header-cell *matHeaderCellDef>Difficulty</th>
+        <td mat-cell *matCellDef="let query">{{ query.competitive_difficulty ?? '—' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="score">
+        <th mat-header-cell *matHeaderCellDef>Opportunity Score</th>
+        <td mat-cell *matCellDef="let query">
+          <mat-chip-set aria-label="Opportunity score">
+            <mat-chip [class]="scoreClass(query.opportunity_score)" [disableRipple]="true">
+              {{
+                query.opportunity_score === null
+                  ? 'n/a'
+                  : (query.opportunity_score | number: '1.2-2')
+              }}
+            </mat-chip>
+          </mat-chip-set>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="visibility">
+        <th mat-header-cell *matHeaderCellDef>Visibility</th>
+        <td mat-cell *matCellDef="let query">
+          @switch (query.status) {
+            @case ('visible') {
+              Visible (#{{ query.visibility_position }})
+            }
+            @case ('not_visible') {
+              Not visible
+            }
+            @default {
+              Unknown
+            }
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef>Action</th>
+        <td mat-cell *matCellDef="let query">
+          <button
+            mat-stroked-button
+            type="button"
+            [disabled]="rechecking().has(query.query_uuid)"
+            [attr.aria-label]="'Recheck: ' + query.query_text"
+            (click)="recheck(query)"
+          >
+            @if (rechecking().has(query.query_uuid)) {
+              <mat-spinner diameter="18" aria-label="Rechecking" />
+            } @else {
+              Recheck
+            }
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+  </div>
+  <mat-paginator
+    [length]="total()"
+    [pageIndex]="pageIndex()"
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="[5, 10, 20]"
+    aria-label="Select page of queries"
+    (page)="onPage($event)"
+  />
+}
