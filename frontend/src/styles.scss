@@ -1,0 +1,91 @@
+@use '@angular/material' as mat;
+
+html {
+  color-scheme: light;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$orange-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+}
+
+a {
+  color: var(--mat-sys-primary);
+}
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+h1 {
+  margin: 0;
+  font: var(--mat-sys-headline-small);
+}
+
+h2 {
+  margin: 0 0 12px;
+  font: var(--mat-sys-title-medium);
+}
+
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+@mixin coloured-chip($background, $text) {
+  @include mat.chips-overrides(
+    (
+      elevated-container-color: $background,
+      elevated-disabled-container-color: $background,
+      label-text-color: $text,
+      disabled-label-text-color: $text,
+    )
+  );
+}
+
+.chip-green {
+  @include coloured-chip(#b7e4c0, #0b3d1a);
+}
+.chip-yellow {
+  @include coloured-chip(#fbe59a, #4a3800);
+}
+.chip-red {
+  @include coloured-chip(#f6c1bb, #5c120a);
+}
+.chip-grey {
+  @include coloured-chip(#dfe1e5, #2c2f33);
+}
+.chip-blue {
+  @include coloured-chip(#bcdcf7, #0b3355);
+}
